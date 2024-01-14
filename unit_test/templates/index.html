@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="message">Loading...</h1>
+
+    <script>
+        // 使用 JavaScript 发送请求到后端，并更新页面内容
+        fetch('/api/message')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('message').innerText = data.message;
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('message').innerText = 'Error fetching data';
+            });
+    </script>
+</body>
+</html>
