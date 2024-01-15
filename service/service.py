@@ -115,7 +115,13 @@ def generate():
         pil_image.save(buffered, format="JPEG")
         encoded_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
         encoded_images.append(encoded_image)
-
+   # call remote gpt-studio
+    logger.info("CallGPT begin. query=%s", description)
+    t0 = time.time()
+    session_id = request.remote_addr + '-' + str(int(t0))
+    response = remote_gpt.CallGPTStudio(session_id, description)
+    t1 = time.time()
+    logger.info("CallGPT done. cost=%dms, reponse=%s", (t0-t1)*1000, response)
     # Combine all images into a single string
     combined_images = ','.join(encoded_images)
 
