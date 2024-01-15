@@ -1,0 +1,36 @@
+syntax = "proto3";
+package gpt.request;
+
+option cc_enable_arenas = true;
+
+message RequestContext {
+    string business_name = 1;
+    int32 time_limit = 2;
+    string client_ip = 3;
+}
+
+message UserData {
+    string imei = 1;
+    map<string, string> schema_map = 2;
+}
+
+message ItemData {
+    repeated bytes texts = 1;
+    repeated bytes images = 2;
+    repeated bytes audios = 3;
+    repeated bytes videos = 4;
+}
+
+message Content {
+    string query = 1;
+    UserData user_data = 2;
+    ItemData item_data = 3;
+} 
+
+message Request {
+    string session_id = 1;
+    RequestContext context = 2;
+    Content content = 3;
+
+    map<string, string> ext_map = 10;
+}

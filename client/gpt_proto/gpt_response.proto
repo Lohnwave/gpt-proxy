@@ -1,0 +1,36 @@
+syntax = "proto3";
+package gpt.response;
+
+option cc_enable_arenas = true;
+
+// db url
+message SearchResult {
+     repeated string texts = 1;
+     repeated string images = 2;
+     repeated string audios = 3;
+     repeated string videos = 4;
+}
+
+message GenerateResult {
+    string text = 1;
+    repeated bytes images = 2;
+}
+
+message Result {
+    enum ResultType {
+        GENERATE = 0;
+        SEARCH = 1;
+    }
+    ResultType type = 1;
+    GenerateResult generate_result = 2;
+    SearchResult search_result = 3;
+}
+
+message Response {
+    string session_id = 1;
+    Result result = 2;
+    string studio_ip = 3;
+    int32 cost_time = 4;
+
+    map<string, string> ext_map = 10;
+}

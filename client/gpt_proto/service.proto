@@ -1,0 +1,11 @@
+syntax = "proto3";
+package gpt.service;
+
+import "client/gpt_proto/gpt_request.proto";
+import "client/gpt_proto/gpt_response.proto";
+
+option cc_enable_arenas = true;
+
+service GPTStudio {
+    rpc GPTStudio(gpt.request.Request) returns (gpt.response.Response) {}
+}
