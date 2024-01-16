@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#client/gpt_proto/gpt_response.proto\x12\x0cgpt.response\"M\n\x0cSearchResult\x12\r\n\x05texts\x18\x01 \x03(\t\x12\x0e\n\x06images\x18\x02 \x03(\t\x12\x0e\n\x06\x61udios\x18\x03 \x03(\t\x12\x0e\n\x06videos\x18\x04 \x03(\t\".\n\x0eGenerateResult\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06images\x18\x02 \x03(\x0c\"\xc9\x01\n\x06Result\x12-\n\x04type\x18\x01 \x01(\x0e\x32\x1f.gpt.response.Result.ResultType\x12\x35\n\x0fgenerate_result\x18\x02 \x01(\x0b\x32\x1c.gpt.response.GenerateResult\x12\x31\n\rsearch_result\x18\x03 \x01(\x0b\x32\x1a.gpt.response.SearchResult\"&\n\nResultType\x12\x0c\n\x08GENERATE\x10\x00\x12\n\n\x06SEARCH\x10\x01\"\xce\x01\n\x08Response\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12$\n\x06result\x18\x02 \x01(\x0b\x32\x14.gpt.response.Result\x12\x11\n\tstudio_ip\x18\x03 \x01(\t\x12\x11\n\tcost_time\x18\x04 \x01(\x05\x12\x33\n\x07\x65xt_map\x18\n \x03(\x0b\x32\".gpt.response.Response.ExtMapEntry\x1a-\n\x0b\x45xtMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x03\xf8\x01\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#client/gpt_proto/gpt_response.proto\x12\x0cgpt.response\"M\n\x0cSearchResult\x12\r\n\x05texts\x18\x01 \x03(\t\x12\x0e\n\x06images\x18\x02 \x03(\t\x12\x0e\n\x06\x61udios\x18\x03 \x03(\t\x12\x0e\n\x06videos\x18\x04 \x03(\t\".\n\x0eGenerateResult\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06images\x18\x02 \x03(\x0c\"\xd3\x01\n\x06Result\x12-\n\x04type\x18\x01 \x01(\x0e\x32\x1f.gpt.response.Result.ResultType\x12\x35\n\x0fgenerate_result\x18\x02 \x01(\x0b\x32\x1c.gpt.response.GenerateResult\x12\x31\n\rsearch_result\x18\x03 \x01(\x0b\x32\x1a.gpt.response.SearchResult\"0\n\nResultType\x12\x08\n\x04\x43HAT\x10\x00\x12\x0c\n\x08GENERATE\x10\x01\x12\n\n\x06SEARCH\x10\x02\"\xce\x01\n\x08Response\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12$\n\x06result\x18\x02 \x01(\x0b\x32\x14.gpt.response.Result\x12\x11\n\tstudio_ip\x18\x03 \x01(\t\x12\x11\n\tcost_time\x18\x04 \x01(\x05\x12\x33\n\x07\x65xt_map\x18\n \x03(\x0b\x32\".gpt.response.Response.ExtMapEntry\x1a-\n\x0b\x45xtMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x03\xf8\x01\x01\x62\x06proto3')
 
 
 
@@ -71,11 +71,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GENERATERESULT._serialized_start=132
   _GENERATERESULT._serialized_end=178
   _RESULT._serialized_start=181
-  _RESULT._serialized_end=382
+  _RESULT._serialized_end=392
   _RESULT_RESULTTYPE._serialized_start=344
-  _RESULT_RESULTTYPE._serialized_end=382
-  _RESPONSE._serialized_start=385
-  _RESPONSE._serialized_end=591
-  _RESPONSE_EXTMAPENTRY._serialized_start=546
-  _RESPONSE_EXTMAPENTRY._serialized_end=591
+  _RESULT_RESULTTYPE._serialized_end=392
+  _RESPONSE._serialized_start=395
+  _RESPONSE._serialized_end=601
+  _RESPONSE_EXTMAPENTRY._serialized_start=556
+  _RESPONSE_EXTMAPENTRY._serialized_end=601
 # @@protoc_insertion_point(module_scope)

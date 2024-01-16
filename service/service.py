@@ -25,6 +25,7 @@ sys.path.insert(2, CLIENT_DIR)
 
 from util.logging_wrapper import LogInit
 from client.gpt_studio_wrapper import GPTStudioWrapper
+from client.gpt_proto.gpt_request_pb2 import Request, FuncType
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -56,7 +57,7 @@ def search():
     logger.info("CallGPT begin. query=%s", query)
     t0 = time.time()
     session_id = request.remote_addr + '-' + str(int(t0))
-    response = remote_gpt.CallGPTStudio(session_id, query)
+    response = remote_gpt.CallGPTStudio(session_id, query, FuncType.SEARCH)
     t1 = time.time()
     logger.info("CallGPT done. cost=%dms, reponse=%s", (t0-t1)*1000, response)
 
@@ -112,7 +113,7 @@ def generate():
     logger.info("CallGPT begin. query=%s", description)
     t0 = time.time()
     session_id = request.remote_addr + '-' + str(int(t0))
-    response = remote_gpt.CallGPTStudio(session_id, description)
+    response = remote_gpt.CallGPTStudio(session_id, description, FuncType.GENERATE)
     t1 = time.time()
     logger.info("CallGPT done. cost=%dms, reponse=%s", (t0-t1)*1000, response)
 

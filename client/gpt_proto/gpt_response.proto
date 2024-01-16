@@ -18,8 +18,9 @@ message GenerateResult {
 
 message Result {
     enum ResultType {
-        GENERATE = 0;
-        SEARCH = 1;
+        CHAT = 0;
+        GENERATE = 1;
+        SEARCH = 2;
     }
     ResultType type = 1;
     GenerateResult generate_result = 2;

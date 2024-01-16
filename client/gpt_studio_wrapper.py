@@ -8,7 +8,7 @@ import logging
 import time
 from util.thread_pool_wrapper import ThreadPoolWrapper
 from util.get_ip import get_local_ip
-from client.gpt_proto.gpt_request_pb2 import Request
+from client.gpt_proto.gpt_request_pb2 import Request, FuncType
 from client.gpt_proto.gpt_response_pb2 import Response
 from client.gpt_proto.service_pb2_grpc import GPTStudioStub
 
@@ -26,12 +26,13 @@ class GPTStudioWrapper:
         if len(get_local_ip()) > 0:
             self.ip = get_local_ip()[0]
 
-    def CallGPTStudio(self, sessionid, query, timeout=1):
+    def CallGPTStudio(self, sessionid, query, type, timeout=1):
         try:
             request = Request()
             request.session_id = sessionid
             request.content.query = query
             request.context.client_ip = self.ip
+            request.func_type = type
             response = self.stub.GPTStudio(request, timeout)
         except grpc.RpcError as e:
             if e.code() != grpc.StatusCode.OK:

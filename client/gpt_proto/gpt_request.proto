@@ -27,10 +27,18 @@ message Content {
     ItemData item_data = 3;
 } 
 
+enum FuncType {
+    UNKNOW = 0;
+    CHAT = 1;
+    GENERATE = 2;
+    SEARCH = 3;
+}
+
 message Request {
     string session_id = 1;
     RequestContext context = 2;
     Content content = 3;
+    FuncType func_type = 4;
 
     map<string, string> ext_map = 10;
 }
