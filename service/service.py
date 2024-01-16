@@ -38,6 +38,8 @@ def search():
     """
     Search for URLs based on query
     ---
+    tags:
+      - search API
     parameters:
       - name: query
         in: query
@@ -46,16 +48,10 @@ def search():
     responses:
       200:
         description: List of URLs matching the query
-        schema:
-          type: object
-          properties:
-            result_urls:
-              type: array
-              items:
-                type: string
-              description: List of URLs matching the query
+        examples:
+            application/json: { "result_urls": ["https://example.com/search?q=query&page=1"]}
     """
-    query = request.args.get('query')
+    query = request.args.get('query', '')
     # call remote gpt-studio
     logger.info("CallGPT begin. query=%s", query)
     t0 = time.time()
@@ -66,8 +62,8 @@ def search():
 
     # For demonstration, let's return a dummy result
     result_urls = [
-        "https://example.com/result1",
-        "https://example.com/result2"
+        f"https://example.com/search?q={query}&page=1",
+        f"https://example.com/search?q={query}&page=2",
     ]
     return jsonify({'result_urls': result_urls})
 
@@ -76,6 +72,10 @@ def generate():
     """
     Generate base64-encoded images with a single description
     ---
+    tags:
+      - generate API
+    consumers:
+      -multipart/form-data
     parameters:
       - name: images
         in: formData
@@ -90,15 +90,8 @@ def generate():
     responses:
       200:
         description: List of base64-encoded images with a common description
-        schema:
-          type: object
-          properties:
-            images:
-              type: string
-              description: Combined base64-encoded images, split by ','
-            description:
-              type: string
-              description: Common description for all images
+        examples:
+            application/json: { "images" : ["data:image/png;base64,iisds...."], "description" : "Description for the generate images"}
     """
     description = request.form.get('description', '')
     image_files = request.files.getlist('images')
@@ -122,11 +115,9 @@ def generate():
     response = remote_gpt.CallGPTStudio(session_id, description)
     t1 = time.time()
     logger.info("CallGPT done. cost=%dms, reponse=%s", (t0-t1)*1000, response)
-    # Combine all images into a single string
-    combined_images = ','.join(encoded_images)
 
     # Store image information with the common description
-    image_result = {"images": combined_images, "description": description}
+    image_result = {"images": encoded_images, "description": description}
     
     return jsonify(image_result)
 
