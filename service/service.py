@@ -26,6 +26,7 @@ sys.path.insert(2, CLIENT_DIR)
 from util.logging_wrapper import LogInit
 from client.gpt_studio_wrapper import GPTStudioWrapper
 from client.gpt_proto.gpt_request_pb2 import Request, FuncType
+from client.gpt_proto.gpt_response_pb2 import Result
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -33,6 +34,78 @@ swagger = Swagger(app)
 # define glfags
 FLAGS = gflags.FLAGS
 gflags.DEFINE_string('gpt_server_address', 'localhost:50051', 'Address of gpt server')
+
+@app.route('/gpt-chat', methods=['POST'])
+def chat():
+    """
+    chat, search, generate images with GPT & MJ
+    ---
+    tags:
+      - GPT Chat API
+    consumers:
+      -multipart/form-data
+    parameters:
+      - name: images
+        in: formData
+        type: file
+        required: false
+        description: The images to be processed
+      - name: text
+        in: formData
+        type: string
+        required: true
+        description: query or  desciption for images
+    responses:
+      200:
+        description: List of base64-encoded images with a common description or answar for quesion
+        examples:
+            application/json: { "images" : ["data:image/png;base64,iisds...."],
+              "text" : "Description for the generate images, or answer",
+              "resultType": "CHAR or SEARCH or GENERATE"}
+    """
+    text = request.form.get('text', '')
+    image_files = request.files.getlist('images')
+    logger.info("recv desc:%s images size:%d", text, len(image_files))
+    # Process each image and collect base64-encoded images
+    encoded_images = []
+    for image in image_files:
+        # Open image using PIL
+        pil_image = Image.open(image)
+        # Process the image if needed
+
+        # Convert PIL Image to base64
+        buffered = BytesIO()
+        pil_image.save(buffered, format="JPEG")
+        encoded_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        encoded_images.append(encoded_image)
+   # call remote gpt-studio
+    logger.info("CallGPT begin. text=%s", text)
+    t0 = time.time()
+    session_id = request.remote_addr + '-' + str(int(t0))
+    response = remote_gpt.CallGPTStudio(session_id, text, encoded_images)
+    
+    result_images = encoded_images # for test
+    result_type = 'UNKNOW'
+    answer = ''
+    if response:
+        if response.result.type == Result.ResultType.SEARCH:
+            result_type = 'SEARCH'
+            answer = response.result.search_result.texts
+            result_images = response.result.search_result.images
+        if response.result.type == Result.ResultType.GENERATE:
+            result_type = 'GENERATE'
+            answer = response.result.generate_result.text
+            result_images = response.result.generate_result.images
+        if response.result.type == Result.ResultType.CHAT:
+            result_type = 'CHAT'
+            answer = response.result.generate_result.text
+    t1 = time.time()
+    logger.info("CallGPT done. cost=%dms, reponse=%s", (t1-t0)*1000, response)
+
+    # Store image information with the common description
+    chat_result = {"images": result_images, "text": answer, "resultType": result_type}
+    
+    return jsonify(chat_result)
 
 @app.route('/gpt-search', methods=['GET'])
 def search():
