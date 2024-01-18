@@ -24,6 +24,7 @@ sys.path.insert(1, UTILS_DIR)
 sys.path.insert(2, CLIENT_DIR)
 
 from util.logging_wrapper import LogInit
+from util.mock_database import MockDataBase
 from client.gpt_studio_wrapper import GPTStudioWrapper
 from client.gpt_proto.gpt_request_pb2 import Request, FuncType
 from client.gpt_proto.gpt_response_pb2 import Result
@@ -66,6 +67,9 @@ def chat():
     text = request.form.get('text', '')
     image_files = request.files.getlist('images')
     logger.info("recv desc:%s images size:%d", text, len(image_files))
+    # record text
+    memory.add_text(text)
+
     # Process each image and collect base64-encoded images
     encoded_images = []
     for image in image_files:
@@ -78,6 +82,7 @@ def chat():
         pil_image.save(buffered, format="JPEG")
         encoded_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
         encoded_images.append(encoded_image)
+        memory.add_image(encoded_image)
    # call remote gpt-studio
     logger.info("CallGPT begin. text=%s", text)
     t0 = time.time()
@@ -87,6 +92,7 @@ def chat():
     result_images = encoded_images # for test
     result_type = 'UNKNOW'
     answer = ''
+    status_code = 200
     if response:
         if response.result.type == Result.ResultType.SEARCH:
             result_type = 'SEARCH'
@@ -99,13 +105,95 @@ def chat():
         if response.result.type == Result.ResultType.CHAT:
             result_type = 'CHAT'
             answer = response.result.generate_result.text
+    else:
+        status_code = 400
+        answer = '哎呀呀，我在火星，不在服务区哟～(o^^o)～'
     t1 = time.time()
     logger.info("CallGPT done. cost=%dms, reponse=%s", (t1-t0)*1000, response)
 
     # Store image information with the common description
     chat_result = {"images": result_images, "text": answer, "resultType": result_type}
     
-    return jsonify(chat_result)
+    return jsonify(chat_result), status_code
+
+@app.route('/gpt-gallery-add', methods=['POST'])
+def galleryAdd():
+    """
+    add image to gallery
+    ---
+    tags:
+      - gallery API
+    consumers:
+      -multipart/form-data
+    parameters:
+      - name: image
+        in: formData
+        type: file
+        required: true
+        description: The image to be processed
+      - name: text
+        in: formData
+        type: string
+        required: false
+        description: desciption for image
+      - name: imei
+        in: formData
+        type: string
+        required: true
+        description: key for gallery
+    responses:
+      200:
+        examples:
+            application/json: {''}
+    """
+    text = request.form.get('text', '')
+    image = request.files.getlist('image')
+    imei = request.form.get('imei', '')
+    # record text to gallery
+    gallery.add_text(text)
+    logger.info("gallery-add done, gallery size=%d, imei=%s", gallery.get_texts_size(), imei)
+    # Open image using PIL
+    pil_image = Image.open(image)
+    # Convert PIL Image to base64
+    buffered = BytesIO()
+    pil_image.save(buffered, format="JPEG")
+    encoded_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    # record image to gallery
+    gallery.add_image(encoded_image)
+
+    return jsonify(''), 200
+
+@app.route('/gpt-gallery-get', methods=['GET'])
+def galleryGet():
+    """
+    get images to gallery
+    ---
+    tags:
+      - gallery API
+    parameters:
+      - name: imei
+        in: query
+        type: string
+        required: true
+        description: key for gallery
+    responses:
+      200:
+        description: List of base64-encoded images with descriptions
+        examples:
+            application/json: { "images" : ["data:image/png;base64,iisds...."],
+              "texts" : ["Description for the images"]}
+    """
+    imei = request.args.get('imei', '')
+    # record text to gallery
+    images = gallery.get_images()
+    texts = gallery.get_texts()
+    logger.info("gallery-get done, gallery size=%d imei=%s", gallery.get_texts_size(), imei)
+
+    if len(images) == 0:
+        return jsonify(''), 400
+    result = {"images": images, "texts": texts}
+    
+    return jsonify(result), 200
 
 @app.route('/gpt-search', methods=['GET'])
 def search():
@@ -205,6 +293,12 @@ def InterruptedCallback(signum, frame, gpt_server):
 if __name__ == '__main__':
     FLAGS(sys.argv)
     LogInit()
+    # TODO add userkey (like imei) for multi chat
+    # for memory
+    memory = MockDataBase(5)
+    # for display images
+    gallery = MockDataBase(10)
+
     logger = logging.getLogger(__name__)
     remote_gpt = GPTStudioWrapper(FLAGS.gpt_server_address)
     signal.signal(signal.SIGUSR1, lambda signum, frame
